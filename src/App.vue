@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRefs, watch } from 'vue'
-import Todos from './components/Todos.vue'
+import AssetBundles from './components/AssetBundles.vue'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-vue';
 import "@aws-amplify/ui-vue/styles.css";
 import type { Schema } from '../amplify/data/resource';
@@ -15,9 +15,7 @@ watch(user, (_state) => {
   greeting.value = defaultMsg
   if (user) {
     const loginId = user.value.signInDetails.loginId
-    client.queries.AssetService({name: loginId}).then((resp) => {
-      greeting.value = resp.data!
-    })
+    greeting.value = `Hello, ${loginId}`
   } 
 })
 </script>
@@ -25,10 +23,11 @@ watch(user, (_state) => {
 <template>
   <authenticator>
     <template v-slot="{ user, signOut }">
-        <h1>{{ greeting }}</h1>
-        <h2>Here are your to-do's</h2>
-      <Todos />
       <button @click="signOut">Sign Out</button>
+      <p>{{ greeting }}</p>
+      <div style="display: flex; flex-direction: column; overflow-y: auto; flex: 1 1 auto; min-height: 0px; max-height: 1000x; height: 100vh">
+        <AssetBundles />
+      </div>
     </template>
   </authenticator>
 </template>

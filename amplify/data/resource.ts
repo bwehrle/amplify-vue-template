@@ -1,21 +1,36 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { assetService } from "../functions/asset-service/resource";
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
+
 const schema = a.schema({
   AssetService: a
     .query()
     .arguments({
-      name: a.string()
+      fileName: a.string()
     })
-    .returns(a.string())
+    .returns(a.customType({
+      key: a.string(),
+      url: a.string(),
+    }))
     .handler(a.handler.function(assetService))
     .authorization((allow) => [allow.authenticated()]),
+
+  AssetBundle: a
+    .model({
+      creatorUserId: a.string().required(),
+      bundleId: a.id().required(),
+      name: a.string().required(),
+    }).identifier(['creatorUserId', 'bundleId'])
+    .authorization((allow) => [allow.owner()]),
+
+  Asset: a
+    .model({
+      bundleId: a.id().required(),
+      assetId: a.string().required(),
+      fileName: a.string().required(),
+    }).identifier(['bundleId', 'assetId'])
+    .authorization((allow) => [allow.owner()]),
+
   Todo: a
     .model({
       content: a.string(),
